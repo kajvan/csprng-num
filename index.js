@@ -1,31 +1,50 @@
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 
-function Random(low = 0, high = 0){
-    if(low == 0 && high == 0){
-        let buf = randomBytes(4);
+let bytes = 4;
+
+function Random(low = 0, high = 0) {
+    if (low == 0 && high == 0) {
+        let buf = randomBytes(bytes);
         let num = buf.readUInt32BE(0) / (Math.pow(2, 32) - 1);
         return num;
     }
     else {
-        let buf = randomBytes(4);
+        let buf = randomBytes(bytes);
         let num = buf.readUInt32BE(0) / (Math.pow(2, 32) - 1);
         return Math.floor(num * (high - low + 1) + low);
     }
 }
 
-//create async function
-Random.async = async function(low = 0, high = 0){
-    if(low == 0 && high == 0){
-        let buf = await promisify(randomBytes)(4);
+async function RandomAsync(low = 0, high = 0) {
+    if (low == 0 && high == 0) {
+        let buf = await promisify(randomBytes)(bytes);
         let num = buf.readUInt32BE(0) / (Math.pow(2, 32) - 1);
         return num;
     }
     else {
-        let buf = await promisify(randomBytes)(4);
+        let buf = await promisify(randomBytes)(bytes);
         let num = buf.readUInt32BE(0) / (Math.pow(2, 32) - 1);
         return Math.floor(num * (high - low + 1) + low);
     }
 }
 
-module.exports = Random;
+function setBytes(num) {
+    if (num < 1) {
+        throw new Error('Number of bytes must be greater than 0');
+    }
+    else {
+        bytes = num;
+    }
+}
+
+//test random.async
+Random.async().then((num) => {
+    console.log(num);
+});
+
+module.exports = {
+    Random,
+    RandomAsync,
+    setBytes
+};
